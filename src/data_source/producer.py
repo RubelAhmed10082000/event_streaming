@@ -93,9 +93,41 @@ def generate_metadata(event_type):
             "battery_percent": random.randint(1, 100)
         }
 
+def generate_bad_event():
+    bad_event_type = random.choice ([
+        "missing_event_id",
+        "missing_user_id",
+        "invalid_timestamp",
+        "unknown_event_type"
+    ])
+
+    event = generate_event()
+
+    if bad_event_type == "mising_event_id":
+        event.pop("event_id", None)
+    
+    elif bad_event_type == "missing_user_id":
+        event.pop("user_id", None)
+
+    elif bad_event_type == "invalid_timestamp":
+        event['event_timetamp'] = "fake-timestamp"
+
+    elif bad_event_type == "unknown_event_type":
+        event["event_type"] = "fake_event"
+
+    return event 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rate", type =int, default=1, help= "Event frequency")
+    args = parser.parse_args()
+
+    sleep_time =  1 / args.rate
     while True:
-        event = generate_event()
-        print(json.dump(event))
+        if random.random() < 0.05:
+            event = generate_bad_event()
+        else:
+            event = generate_event()
+
+        print(json.dumps(event))
         time.sleep(1)
