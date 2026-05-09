@@ -1,2 +1,6 @@
 test.ipynb
 *.pyc
+.vscode
+.pytest_cache
+.venv
+__pycache__
