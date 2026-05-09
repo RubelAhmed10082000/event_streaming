@@ -61,6 +61,13 @@ def generate_metadata(event_type):
         dict: metadata for specific event type, with randomized values
     """
     try:
+        if event_type == "app_opened":
+            return {
+                "is_premium": random.choice([True, False]),
+                "latency_ms": random.randint(50, 1000),
+                "timestamp_open": datetime.now(timezone.utc).isoformat()
+            }
+        
         # JSON metadata payload for 'track_started' event
         if event_type == "track_started":
             return {
