@@ -14,7 +14,7 @@ EVENT_TYPES = [
     "search_performed",
     "playlist_created",
     "ad_loaded",
-    "error_ocurred"
+    "error_occurred"
 ]
 
 # Creating a list of potential platforms, app version and countries for metadata
@@ -101,7 +101,7 @@ def generate_metadata(event_type):
             }
 
         # JSON metadata payload for 'error_occured' event
-        elif event_type == "error_ocurred":
+        elif event_type == "error_occurred":
             return {
                 "error_code": random.choice(["500", "404", "TIMEOUT", "AUTH_FAILED"]),
                 "error_message": random.choice([
