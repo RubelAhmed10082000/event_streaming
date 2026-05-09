@@ -140,7 +140,7 @@ def generate_bad_event():
     event = generate_event()
 
     # pops event_id and replaces it with None
-    if bad_event_type == "mising_event_id":
+    if bad_event_type == "missing_event_id":
         event.pop("event_id", None)
     
     # pops user_id and replaces it with None

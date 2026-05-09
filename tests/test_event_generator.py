@@ -107,7 +107,6 @@ def test_error_occurred_metadata_shape():
 def test_all_event_types_generate_metadata():
     for event_type in EVENT_TYPES:
         metadata = generate_metadata(event_type)
-
         assert isinstance(metadata, dict)
         assert len(metadata) > 0
 
