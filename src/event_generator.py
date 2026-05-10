@@ -157,7 +157,7 @@ def generate_bad_event():
 
     return event 
 
-if __name__ == "__main__":
+def run_event_generator():
     # Creating argparser to allow for control of sleep time 
     parser = argparse.ArgumentParser()
     parser.add_argument("--rate", type =int, default=1, help= "Event frequency")
@@ -176,3 +176,5 @@ if __name__ == "__main__":
         # Ouputs json 
         print(json.dumps(event))
         time.sleep(1)
+
+run_event_generator()
