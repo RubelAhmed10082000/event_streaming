@@ -158,6 +158,12 @@ def generate_bad_event():
     return event 
 
 def run_event_generator():
+    """
+    Generates event data streamm 
+
+    Returns: 
+        dict: Event data playload along with meta data 
+    """
     # Creating argparser to allow for control of sleep time 
     parser = argparse.ArgumentParser()
     parser.add_argument("--rate", type =int, default=1, help= "Event frequency")
