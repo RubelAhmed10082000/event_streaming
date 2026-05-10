@@ -180,7 +180,5 @@ def run_event_generator():
             event = generate_event()
             
         # Ouputs json 
-        print(json.dumps(event))
         time.sleep(1)
 
-run_event_generator()
