@@ -1,21 +1,18 @@
 from google.cloud import pubsub_v1
-import src.event_generator
-
+from event_generator import run_event_generator
 
 project_id = "event-streaming-495819"
 topic_id = "MyTopic"
 
 publisher = pubsub_v1.PublisherClient()
-# The `topic_path` method creates a fully qualified identifier
-# in the form `projects/{project_id}/topics/{topic_id}`
 topic_path = publisher.topic_path(project_id, topic_id)
 
-for n in range(1, 10):
-    data_str = f"Message number {n}"
-    # Data must be a bytestring
-    data = data_str.encode("utf-8")
-    # When you publish a message, the client returns a future.
-    future = publisher.publish(topic_path, data)
-    print(future.result())
+def run_publisher(topic_path):
+    while True:
+        data = run_event_generator()
+        future = publisher.publish(topic_path, data)
+        print(future.result())
 
-print(f"Published messages to {topic_path}.")
+    print(f"Published messages to {topic_path}.")
+
+run_publisher(topic_path)
