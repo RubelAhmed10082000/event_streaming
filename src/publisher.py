@@ -1,18 +1,23 @@
 from google.cloud import pubsub_v1
 from event_generator import run_event_generator
+from dotenv import load_dotenv, dotenv_values
+import os
 
-project_id = "event-streaming-495819"
-topic_id = "MyTopic"
+load_dotenv()
+
+project_id = os.getenv('PROJECT_ID')
+topic_id = os.getenv('TOPIC_ID')
+
 
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_id)
 
-def run_publisher(topic_path):
-    while True:
-        data = run_event_generator()
-        future = publisher.publish(topic_path, data)
-        print(future.result())
+for n in range(1, 10):
+    data_str = f"Message number {n}"
+    # Data must be a bytestring
+    data = data_str.encode("utf-8")
+    # When you publish a message, the client returns a future.
+    future = publisher.publish(topic_path, data)
+    print(future.result())
 
-    print(f"Published messages to {topic_path}.")
-
-run_publisher(topic_path)
+print(f"Published messages to {topic_path}.")
