@@ -171,14 +171,20 @@ def run_event_generator():
 
     # Sleep time percentage of --rate argument 
     sleep_time =  1 / args.rate
-    while True:
-        # Sets 5% of bad event being generated
-        if random.random() < 0.05:
-            event = generate_bad_event()
-        else:
-        # Otherwise healthy event is generated
-            event = generate_event()
-            
-        # Ouputs json 
-        time.sleep(1)
+
+    # Sets 5% of bad event being generated
+    if random.random() < 0.05:
+        event = generate_bad_event()
+        print(event)
+        return event
+        
+    else:
+    # Otherwise healthy event is generated
+        event = generate_event()
+        print(event)
+        return event
+    
+
+
+
 
