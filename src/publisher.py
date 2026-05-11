@@ -4,6 +4,8 @@ from dotenv import load_dotenv, dotenv_values
 import os
 import json
 import time
+import json
+import argparse
 
 load_dotenv()
 
@@ -23,18 +25,32 @@ def publish_message(topic_path):
     Returns:
         published message
     """
+
+    # Creating argparser to allow for control of sleep time 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rate", type =int, default=1, help= "Event frequency")
+    args = parser.parse_args()
+
+    # Sleep time percentage of --rate argument 
+    sleep_time =  1 / args.rate
+
     # Creating a infinite loop - only shuts down whens manually stopped
     while True:
+        
         data = run_event_generator()
         print(data)
+
         # Encodes data with utf-8
         data = json.dumps(data).encode('utf-8')
+
         # Creating a 'future' object 
         future = publisher.publish(topic_path, data)
+
         # Printing future
         print(future.result())
+
         # Sleep to avoid throttling
-        time.sleep(1)
+        time.sleep(sleep_time)
 
 publish_message(topic_path)
 

@@ -1,9 +1,7 @@
 import uuid
 import random
-import time
 from datetime import datetime, timezone
-import json
-import argparse
+
 
 
 # Creating a list of event types to be returned in JSON format
@@ -164,24 +162,16 @@ def run_event_generator():
     Returns: 
         dict: Event data playload along with meta data 
     """
-    # Creating argparser to allow for control of sleep time 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--rate", type =int, default=1, help= "Event frequency")
-    args = parser.parse_args()
-
-    # Sleep time percentage of --rate argument 
-    sleep_time =  1 / args.rate
+    
 
     # Sets 5% of bad event being generated
     if random.random() < 0.05:
         event = generate_bad_event()
-        print(event)
         return event
         
     else:
     # Otherwise healthy event is generated
         event = generate_event()
-        print(event)
         return event
     
 
