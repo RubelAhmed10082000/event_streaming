@@ -1,5 +1,5 @@
 from google.cloud import pubsub_v1
-from event_generator import run_event_generator
+from src.event_generator import run_event_generator
 from dotenv import load_dotenv
 import os
 import json
