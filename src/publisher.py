@@ -7,14 +7,7 @@ import time
 import json
 import argparse
 
-load_dotenv()
 
-project_id = os.getenv('PROJECT_ID')
-topic_id = os.getenv('TOPIC_ID')
-
-
-publisher = pubsub_v1.PublisherClient()
-topic_path = publisher.topic_path(project_id, topic_id)
 
 def publish_message(publisher, topic_path, event):
     # Encodes data with utf-8
@@ -29,6 +22,7 @@ def publish_message(publisher, topic_path, event):
 
 def run_publisher(publisher, topic_path, rate=0):
 
+    # Setting sleep rate
     sleep_time = 1 / rate
 
     while True:
@@ -40,4 +34,18 @@ def run_publisher(publisher, topic_path, rate=0):
 
         time.sleep(sleep_time)
 
-    
+if __name__ == "__main__":
+    load_dotenv()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rate", type=int, default=1, help="Events per second")
+    args = parser.parse_args()
+
+    project_id = os.getenv('PROJECT_ID')
+    topic_id = os.getenv('TOPIC_ID')
+
+
+    pubsub_publisher = pubsub_v1.PublisherClient()
+    topic_path = pubsub_publisher.topic_path(project_id, topic_id)
+
+    run_publisher(pubsub_publisher, topic_path, rate=args.rate)
