@@ -7,8 +7,6 @@ import time
 import json
 import argparse
 
-
-
 def publish_message(publisher, topic_path, event):
     """
     Publishes message to pubsub topic
@@ -22,13 +20,19 @@ def publish_message(publisher, topic_path, event):
         future.result(str): string objet that has been encoded 
     """
     # Encodes data with utf-8
-    data = json.dumps(event).encode('utf-8')
+    data = encode_data(event)
 
     # Creating a 'future' object 
     future = publisher.publish(topic_path, data)
 
     # returning future
     return future.result()
+
+def encode_data(data):
+    """
+    Encodes data into utf-8
+    """
+    return json.dumps(data).encode('utf-8')
 
 
 def run_publisher(publisher, topic_path, rate=0):
