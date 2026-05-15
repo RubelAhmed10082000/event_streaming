@@ -1,11 +1,18 @@
 from google.cloud import pubsub_v1
-from src.event_generator import run_event_generator
+from event_generator import run_event_generator
 from dotenv import load_dotenv
 import os
 import json
 import time
 import json
 import argparse
+import logging 
+import time
+
+# Creating logger object
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 def publish_message(publisher, topic_path, event):
     """
@@ -17,16 +24,46 @@ def publish_message(publisher, topic_path, event):
         event(dict): Event that will be published 
 
     Returns:
-        future.result(str): string objet that has been encoded 
+        message(str): string objet that has been encoded 
     """
-    # Encodes data with utf-8
-    data = encode_data(event)
+    
+    # Starting timer to log latency
+    start_time = time.perf_counter()
+    
+    try:
+        # Encodes data with utf-8
+        data = encode_data(event)
 
-    # Creating a 'future' object 
-    future = publisher.publish(topic_path, data)
+        # Creating a 'future' object 
+        future = publisher.publish(topic_path, data)
 
-    # returning future
-    return future.result()
+        message = future.result()
+
+        latency_ms = (time.perf_counter() - start_time) * 1000
+
+        # Logging latency, messagee, event_type and payload size for every message published
+        logger.info(
+            "event_published",
+            extra={
+                "event_type": event.get("event_type"),
+                "message_id": message,
+                "payload_size": len(data),
+                "latency_ms": round(latency_ms, 2),
+
+            },
+        )
+
+        # return message
+        return message
+    
+    # Logging event type if event type is not None
+    except Exception:
+        logger.exception(
+            "event failed to publish",
+            extra = {
+                "event_type": event.get("event_type") if isinstance(event,dict) else None,
+            },
+        )
 
 def encode_data(data):
     """
