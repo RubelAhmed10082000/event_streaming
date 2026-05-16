@@ -7,7 +7,7 @@ import time
 import json
 import argparse
 
-def publish_message(publisher, topic_path, event):
+def publish_message(publisher: str, topic_path: str, event: dict):
     """
     Publishes message to pubsub topic
 
@@ -28,14 +28,14 @@ def publish_message(publisher, topic_path, event):
     # returning future
     return future.result()
 
-def encode_data(data):
+def encode_data(data: dict) -> bytes:
     """
     Encodes data into utf-8
     """
     return json.dumps(data).encode('utf-8')
 
 
-def run_publisher(publisher, topic_path, rate=0):
+def run_publisher(publisher: str, topic_path: str, rate=0):
     """
     Runs publish_message() function indefinetly 
 
