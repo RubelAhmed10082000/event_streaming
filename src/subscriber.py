@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
-    future_pull(subscription_path, timeout=0)
+    future_pull(subscription_path, timeout=10)
 
 
 
