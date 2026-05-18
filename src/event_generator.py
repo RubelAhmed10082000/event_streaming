@@ -147,7 +147,7 @@ def generate_bad_event():
     
     # Replaces event_timestamp with bad_timestamp
     elif bad_event_type == "invalid_timestamp":
-        event['event_timetamp'] = "bad_timestamp"
+        event['event_timestamp'] = "bad_timestamp"
 
     # Replaces event_type with bad_event
     elif bad_event_type == "unknown_event_type":
