@@ -2,7 +2,20 @@ from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1
 import os
 from dotenv import load_dotenv
+import json
 
+
+
+
+def decode(data: pubsub_v1.subscriber.message.Message) -> dict:
+    """
+    Args -
+        data(bytes): Message sent from publisher
+    Returns -
+        event(dict): decoded event data 
+    """
+    event = json.loads(data.data.decode('utf-8'))
+    return event
 
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     """
@@ -11,10 +24,18 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     Args:
         message(bytes): Message being listened to and acknowledged 
     """
-    # Print statement acknowledging message
-    print(f"Received {message}.")
-    # acking message
-    message.ack()
+
+    try:
+        event = decode(message)
+        validate_event = validate(event)
+        # Print statement acknowledging message
+        print(f"Received {message}.")
+        # acking message
+        message.ack()
+    except Exception as e:
+        print(f"{message.message_id} experieneced error: {e}")
+        message.nack()
+
 
 def future_pull(subscription_path, timeout=10):
     """
@@ -22,7 +43,7 @@ def future_pull(subscription_path, timeout=10):
 
     Args:
         subscription_path (str): Path to subscriber 
-        timeout: How long subscriber listens to publisher
+        timeout(int): How long subscriber listens to publisher
     """
 
     # reads message from subscription
