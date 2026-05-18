@@ -71,7 +71,7 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     try:
         # Decodes event then validates that decoding has gone as expected
         event = decode(message)
-        validate(event)
+        validate(event,expected)
         # Print statement acknowledging message
         print(f"Received {message}.")
         # acking message
