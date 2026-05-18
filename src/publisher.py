@@ -17,7 +17,7 @@ def publish_message(publisher: str, topic_path: str, event: dict):
         event(dict): Event that will be published 
 
     Returns:
-        future.result(str): string objet that has been encoded 
+        future.result(str): string object that has been encoded 
     """
     # Encodes data with utf-8
     data = encode_data(event)
