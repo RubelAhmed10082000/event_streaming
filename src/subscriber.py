@@ -7,6 +7,7 @@ import datetime
 
 from event_generator import EVENT_TYPES
 
+# List of events we expect in the field
 expected = (
         "event_id",
         "user_id",
