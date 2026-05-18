@@ -4,17 +4,46 @@ import os
 from dotenv import load_dotenv
 import json
 
+expected = (
+        "event_id",
+        "user_id",
+        "session_id",
+        "event_type",
+        "platform",
+        "country",
+        "app_version",
+        "event_timestamp",
+        "metadata"
+    )
 
 
+def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
+    """
+    Validates that message decoded correctly
 
-def decode(data: pubsub_v1.subscriber.message.Message) -> dict:
+    Args - 
+        decoded_message(dict): Data to be validated
+        expected_list_of_fields(list): List of fields expected in decoded data 
+    """
+
+    # Checking if decoded_message is dictionary
+    if isinstance(decoded_message, dict) == False:
+        raise TypeError("Decoded data not of type dict")
+
+    # Checking for missing fields in decoded_message
+    for ele in expected_list_of_fields:
+        if ele not in decoded_message.keys():
+            raise KeyError(f"{ele} not in decoded message")
+    return True
+    
+def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
     """
     Args -
-        data(bytes): Message sent from publisher
+        encoded_message(bytes): Encoded mesasge sent from publisher
     Returns -
-        event(dict): decoded event data 
+        event(dict): decoded message 
     """
-    event = json.loads(data.data.decode('utf-8'))
+    event = json.loads(encoded_message.data.decode('utf-8'))
     return event
 
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
@@ -22,12 +51,13 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     Acknowledges that message has been received 
 
     Args:
-        message(bytes): Message being listened to and acknowledged 
+        message(dict): Message being listened to and acknowledged 
     """
 
     try:
+        # Decodes event then validates that decoding has gone as expected
         event = decode(message)
-        validate_event = validate(event)
+        validate(event)
         # Print statement acknowledging message
         print(f"Received {message}.")
         # acking message
