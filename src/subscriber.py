@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import json
 import datetime
+
 from event_generator import EVENT_TYPES
 
 expected = (
@@ -120,7 +121,7 @@ def main():
 
     subscription_path = build_subscription_path(subscriber, project_id, subscription_id)
 
-    run_subscriber(subscription_path, timeout=10)
+    run_subscriber(subscriber, subscription_path, timeout=10)
 
 if __name__ == "__main__":
     main()
