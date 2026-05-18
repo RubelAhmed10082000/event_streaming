@@ -47,7 +47,6 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
             raise ValueError(f'{v}: unexpected event type value')
         
     
-    
 def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
     """
     Args -
@@ -57,6 +56,7 @@ def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
     """
     event = json.loads(encoded_message.data.decode('utf-8'))
     return event
+
 
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     """
@@ -78,13 +78,20 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
         print(f"{message.message_id} experieneced error: {e}")
         message.nack()
 
-
-def future_pull(subscription_path, timeout=10):
+def build_subscription_path(subscriber: pubsub_v1.SubscriberClient, project_id: str, 
+                            subscription_id: str) -> str:
     """
-    Requests message from pub/sub server
+    Builds Pub/Sub subscription path
+    """
+    return subscriber.subscription_path(project_id, subscription_id)
+
+
+def run_subscriber(subscriber: pubsub_v1.SubscriberClient, subscription_path: str, timeout=10):
+    """
+    Listens for messages
 
     Args:
-        subscription_path (str): Path to subscriber 
+        subscription_path(str): Path to subscriber 
         timeout(int): How long subscriber listens to publisher
     """
 
@@ -101,8 +108,9 @@ def future_pull(subscription_path, timeout=10):
             streaming_pull_future.cancel() 
             streaming_pull_future.result()  
 
-if __name__ == "__main__":
 
+
+def main():
     load_dotenv()
 
     project_id = os.getenv('PROJECT_ID')
@@ -110,9 +118,12 @@ if __name__ == "__main__":
 
     subscriber = pubsub_v1.SubscriberClient()
 
-    subscription_path = subscriber.subscription_path(project_id, subscription_id)
+    subscription_path = build_subscription_path(subscriber, project_id, subscription_id)
 
-    future_pull(subscription_path, timeout=10)
+    run_subscriber(subscription_path, timeout=10)
+
+if __name__ == "__main__":
+    main()
 
 
 
