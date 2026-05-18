@@ -3,6 +3,8 @@ from google.cloud import pubsub_v1
 import os
 from dotenv import load_dotenv
 import json
+import datetime
+from event_generator import EVENT_TYPES
 
 expected = (
         "event_id",
@@ -34,7 +36,17 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
     for ele in expected_list_of_fields:
         if ele not in decoded_message.keys():
             raise KeyError(f"{ele} not in decoded message")
-    return True
+    
+    # Checking if event_timestamp is still in datetime format
+    if isinstance(decoded_message['event_timestamp'], datetime) == False:
+        raise TypeError("'event_timestamp' not of type datetime")
+    
+    # Checking if event type field has correct fields 
+    for v in decoded_message['event_type']:
+        if v not in EVENT_TYPES:
+            raise ValueError(f'{v}: unexpected event type value')
+        
+    
     
 def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
     """
