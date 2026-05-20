@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 import json
 from datetime import datetime
-from event_generator import EVENT_TYPES
+from src.event_generator import EVENT_TYPES
 from json import JSONDecodeError
 
 # List of events we expect in the field
