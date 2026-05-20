@@ -40,13 +40,14 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
             raise KeyError(f"{ele} not in decoded message")
     
     # Checking if event_timestamp is still in datetime format
-    if isinstance(decoded_message['event_timestamp'], datetime) == False:
-        raise TypeError("'event_timestamp' not of type datetime")
+    try:
+        datetime.fromisoformat(decoded_message["event_timestamp"])
+    except ValueError:
+        raise ValueError(f"Invalid event_timestamp: {decoded_message['event_timestamp']}")
     
     # Checking if event type field has correct fields 
-    for v in decoded_message['event_type']:
-        if v not in EVENT_TYPES:
-            raise ValueError(f'{v}: unexpected event type value')
+    if decoded_message['event_type'] not in EVENT_TYPES:
+        raise ValueError(f'{decoded_message['event_types']}: unexpected event type value')
         
     
 def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
@@ -88,7 +89,8 @@ def build_subscription_path(subscriber: pubsub_v1.SubscriberClient, project_id: 
     return subscriber.subscription_path(project_id, subscription_id)
 
 
-def run_subscriber(subscriber: pubsub_v1.SubscriberClient, subscription_path: str, timeout=10):
+def run_subscriber(subscriber: pubsub_v1.SubscriberClient, 
+                   subscription_path: str, timeout=10) -> None:
     """
     Listens for messages
 
@@ -112,7 +114,7 @@ def run_subscriber(subscriber: pubsub_v1.SubscriberClient, subscription_path: st
 
 
 
-def main():
+def main() -> None:
     load_dotenv()
 
     project_id = os.getenv('PROJECT_ID')
