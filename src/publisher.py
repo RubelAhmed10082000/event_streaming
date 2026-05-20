@@ -46,6 +46,9 @@ def run_publisher(publisher: str, topic_path: str, rate=1):
 
     """
 
+    if rate <= 0:
+        raise ValueError("Rate needs to be 1 or greater")
+    
     # Setting sleep rate
     sleep_time = 1 / rate
 
