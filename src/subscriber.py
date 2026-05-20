@@ -55,7 +55,7 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
     return True
         
     
-def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
+def decode_data(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
     """
     Args -
         encoded_message(bytes): Encoded mesasge sent from publisher
@@ -76,7 +76,7 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
 
     try:
         # Decodes event then validates that decoding has gone as expected
-        event = decode(message)
+        event = decode_data(message)
         validate(event, expected)
         # Print statement acknowledging message
         print(f"Received {message}.")
