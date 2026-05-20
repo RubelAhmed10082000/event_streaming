@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import json
 from datetime import datetime
 from event_generator import EVENT_TYPES
+from json import JSONDecodeError
 
 # List of events we expect in the field
 expected = (
@@ -30,8 +31,11 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
     """
 
     # Checking if decoded_message is dictionary
-    if isinstance(decoded_message, dict) == False:
+    if not isinstance(decoded_message, dict):
         raise TypeError("Decoded data not of type dict")
+    
+    if not isinstance(decoded_message['metadata'],dict):
+        raise TypeError("metadata data not of type dict")
 
     # Checking for missing fields in decoded_message
     for ele in expected_list_of_fields:
@@ -86,11 +90,15 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     except ValueError as e:
         print(f"{message.message_id} is a bad meesage, dropping message {e}")
         message.ack()
+    
+    except json.JSONDecodeError as e:
+        print(f"{message.message_id} contains invalid JSON, dropping message: {e}")
+        message.ack()
+
 
     except KeyError as e:
         print(f"{message.message_id} is a bad meesage, dropping message {e}")
         message.ack()
-
 
     # Nacking if any other failures
     except Exception as e:
