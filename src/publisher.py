@@ -62,7 +62,7 @@ def run_publisher(publisher: str, topic_path: str, rate=0):
         # Sleeps
         time.sleep(sleep_time)
 
-if __name__ == "__main__":
+def main():
     load_dotenv()
 
     # Create "rate" argument parser
@@ -80,3 +80,7 @@ if __name__ == "__main__":
 
     # Runs publisher
     run_publisher(pubsub_publisher, topic_path, rate=args.rate)
+
+if __name__ == "__main__":
+    main()
+    
