@@ -47,6 +47,8 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
     # Checking if event type field has correct fields 
     if decoded_message['event_type'] not in EVENT_TYPES:
         raise ValueError(f"{decoded_message['event_type']}: unexpected event type value")
+    
+    return True
         
     
 def decode(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
@@ -125,8 +127,6 @@ def run_subscriber(subscriber: pubsub_v1.SubscriberClient,
         except TimeoutError:
             streaming_pull_future.cancel() 
             streaming_pull_future.result()  
-
-
 
 def main() -> None:
     load_dotenv()
