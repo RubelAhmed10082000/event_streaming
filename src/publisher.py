@@ -35,7 +35,7 @@ def encode_data(data: dict) -> bytes:
     return json.dumps(data).encode('utf-8')
 
 
-def run_publisher(publisher: str, topic_path: str, rate=0):
+def run_publisher(publisher: str, topic_path: str, rate=1):
     """
     Runs publish_message() function indefinetly 
 
