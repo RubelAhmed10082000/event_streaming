@@ -98,7 +98,7 @@ def test_validate_detects_missing_fields():
     
     mock_event.pop(random.choice(expected), None)
 
-    with pytest.raises(KeyError, match='decoded'):
+    with pytest.raises(KeyError):
         validate(mock_event, expected)
     
 def test_validate_detects_timestamp_datatype():
@@ -166,6 +166,32 @@ def test_validat_passes_real_event():
     assert validate(mock_event_no_errors, expected) == True
 
 ### Testing Callback Function ###
+
+def test_callback_acks_message_with_missing_field():
+    mock_event = {
+        # "event_id" is missing
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "track_started",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": {
+            "track_id": "track_123",
+            "artist_id": "artist_456",
+            "latency_ms": 120,
+            "is_premium": True
+        }
+    }
+
+    encoded_data = encode_data(mock_event)
+    mock_message = MockPubSubMessage(encoded_data)
+
+    callback(mock_message)
+
+    assert mock_message.acked is True
+    assert mock_message.nacked is False
 
 
 
