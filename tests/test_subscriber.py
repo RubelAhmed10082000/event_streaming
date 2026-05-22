@@ -167,9 +167,9 @@ def test_validat_passes_real_event():
 
 ### Testing Callback Function ###
 
-def test_callback_acks_message_with_missing_field():
+def test_callback_acks_valid_message():
     mock_event = {
-        # "event_id" is missing
+        "event_id": "event_123",
         "user_id": "user_456",
         "session_id": "session_789",
         "event_type": "track_started",
@@ -194,6 +194,135 @@ def test_callback_acks_message_with_missing_field():
     assert mock_message.nacked is False
 
 
+def test_callback_acks_message_with_missing_field():
+    mock_event = {
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "track_started",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": {
+            "track_id": "track_123",
+            "artist_id": "artist_456",
+            "latency_ms": 120,
+            "is_premium": True
+        }
+    }
 
+    encoded_data = encode_data(mock_event)
+    mock_message = MockPubSubMessage(encoded_data)
+
+    callback(mock_message)
+
+    assert mock_message.acked is True
+    assert mock_message.nacked is False
+
+
+def test_callback_acks_message_with_invalid_timestamp():
+    mock_event = {
+        "event_id": "event_123",
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "track_started",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "bad_timestamp",
+        "metadata": {
+            "track_id": "track_123",
+            "artist_id": "artist_456",
+            "latency_ms": 120,
+            "is_premium": True
+        }
+    }
+
+    encoded_data = encode_data(mock_event)
+    mock_message = MockPubSubMessage(encoded_data)
+
+    callback(mock_message)
+
+    assert mock_message.acked is True
+    assert mock_message.nacked is False
+
+
+def test_callback_acks_message_with_unknown_event_type():
+    mock_event = {
+        "event_id": "event_123",
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "bad_event",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": {
+            "track_id": "track_123",
+            "artist_id": "artist_456",
+            "latency_ms": 120,
+            "is_premium": True
+        }
+    }
+
+    encoded_data = encode_data(mock_event)
+    mock_message = MockPubSubMessage(encoded_data)
+
+    callback(mock_message)
+
+    assert mock_message.acked is True
+    assert mock_message.nacked is False
+
+
+def test_callback_acks_message_with_metadata_as_list():
+    mock_event = {
+        "event_id": "event_123",
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "track_started",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": [
+            {
+                "track_id": "track_123",
+                "artist_id": "artist_456",
+                "latency_ms": 120,
+                "is_premium": True
+            }
+        ]
+    }
+
+    encoded_data = encode_data(mock_event)
+    mock_message = MockPubSubMessage(encoded_data)
+
+    callback(mock_message)
+
+    assert mock_message.acked is True
+    assert mock_message.nacked is False
+
+
+def test_callback_acks_invalid_json_message():
+    mock_message = MockPubSubMessage(b"{bad json")
+
+    callback(mock_message)
+
+    assert mock_message.acked is True
+    assert mock_message.nacked is False
+
+
+def test_callback_nacks_unexpected_error(monkeypatch):
+    def broken_decode(message):
+        raise RuntimeError("Unexpected failure")
+
+    monkeypatch.setattr("src.subscriber.decode_data", broken_decode)
+
+    mock_message = MockPubSubMessage(b"{}")
+
+    callback(mock_message)
+
+    assert mock_message.acked is False
+    assert mock_message.nacked is True
 
 
