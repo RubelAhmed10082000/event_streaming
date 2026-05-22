@@ -66,8 +66,7 @@ def test_validate_rejects_non_dict_metadata():
     with pytest.raises(TypeError, match='metadata'):
         validate(mock_event_metadata_is_list, expected)
 
-test_validate_rejects_non_dict_message()
-test_validate_rejects_non_dict_metadata()
+
 
 
 
