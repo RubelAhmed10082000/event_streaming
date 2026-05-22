@@ -4,12 +4,21 @@ import pytest
 import random
 
 class MockPubSubMessage:
-    def __init__(self, data):
+    def __init__(self, data, message_id="mock-message-id"):
         self.data = data
+        self.message_id = message_id
+        self.acked = False
+        self.nacked = False
+
+    def ack(self):
+        self.acked = True
+
+    def nack(self):
+        self.nacked = True
 
 ### Testing Decoding Function ###
 def test_decode():
-    mock_event = {
+    mock_event_before_decoding = {
         "event_id": "event_123",
         "user_id": "user_456",
         "session_id": "session_789",
@@ -26,13 +35,13 @@ def test_decode():
         }
     }
 
-    mock_encoded_message = encode_data(mock_event)
+    mock_encoded_message = encode_data(mock_event_before_decoding)
 
     mock_message = MockPubSubMessage(mock_encoded_message)
 
     mock_decoded_message = decode_data(mock_message)
 
-    assert mock_decoded_message == mock_event
+    assert mock_decoded_message == mock_event_before_decoding
 
 ### Testing Validation Function ###
 def test_validate_rejects_non_dict_message():
@@ -136,6 +145,27 @@ def test_validate_detects_unexpected_event_type():
     with pytest.raises(ValueError, match='unexpected'):
         validate(mock_event_bad_event_type, expected)
 
+def test_validat_passes_real_event():
+    mock_event_no_errors = {
+        "event_id": "event_123",
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "track_started",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": {
+            "track_id": "track_123",
+            "artist_id": "artist_456",
+            "latency_ms": 120,
+            "is_premium": True
+        }
+    }
+
+    assert validate(mock_event_no_errors, expected) == True
+
+### Testing Callback Function ###
 
 
 
