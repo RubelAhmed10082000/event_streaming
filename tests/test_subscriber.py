@@ -34,11 +34,41 @@ def test_decode():
     assert mock_decoded_message == mock_event
 
 # Testing Validation Function
-def test_validate():
-    def test_validate_rejects_non_dictionary():
-        mock_list = [1,2,4,5]
+def test_validate_rejects_non_dict_message():
+    mock_list = (
+    "user_id", "user_123",
+    "event_type", "song_played"
+)
 
-        with pytest.raises(TypeError):
-            validate(mock_list, expected)
-            
-    test_validate_rejects_non_dictionary()
+    with pytest.raises(TypeError, match = 'dict'):
+        validate(mock_list, expected)
+    
+def test_validate_rejects_non_dict_metadata():
+    mock_event_metadata_is_list = {
+        "event_id": "event_123",
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "track_started",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": [
+            {
+                "track_id": "track_123",
+                "artist_id": "artist_456",
+                "latency_ms": 120,
+                "is_premium": True
+            }
+        ]
+    }
+    
+    with pytest.raises(TypeError, match='metadata'):
+        validate(mock_event_metadata_is_list, expected)
+
+test_validate_rejects_non_dict_message()
+test_validate_rejects_non_dict_metadata()
+
+
+
+
