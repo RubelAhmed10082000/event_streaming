@@ -1,12 +1,12 @@
-from src.subscriber import decode_data, validate, callback, run_subscriber, build_subscription_path
+from src.subscriber import decode_data, validate, callback, run_subscriber, build_subscription_path, expected
 from src.publisher import encode_data
+import pytest
 
 class MockPubSubMessage:
     def __init__(self, data):
         self.data = data
 
-
-
+### Testing Decoding Function
 def test_decode():
     mock_event = {
         "event_id": "event_123",
@@ -32,3 +32,13 @@ def test_decode():
     mock_decoded_message = decode_data(mock_message)
 
     assert mock_decoded_message == mock_event
+
+# Testing Validation Function
+def test_validate():
+    def test_validate_rejects_non_dictionary():
+        mock_list = [1,2,4,5]
+
+        with pytest.raises(TypeError):
+            validate(mock_list, expected)
+            
+    test_validate_rejects_non_dictionary()
