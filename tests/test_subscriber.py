@@ -7,7 +7,7 @@ class MockPubSubMessage:
     def __init__(self, data):
         self.data = data
 
-### Testing Decoding Function
+### Testing Decoding Function ###
 def test_decode():
     mock_event = {
         "event_id": "event_123",
@@ -34,7 +34,7 @@ def test_decode():
 
     assert mock_decoded_message == mock_event
 
-# Testing Validation Function
+### Testing Validation Function ###
 def test_validate_rejects_non_dict_message():
     mock_list = (
     "user_id", "user_123",
@@ -114,6 +114,27 @@ def test_validate_detects_timestamp_datatype():
     
     with pytest.raises(ValueError, match='Invalid event_timestamp'):
         validate(mock_event_bad_timestamp, expected)
+
+def test_validate_detects_unexpected_event_type():
+    mock_event_bad_event_type = {
+        "event_id": "event_123",
+        "user_id": "user_456",
+        "session_id": "session_789",
+        "event_type": "bad_event_type",
+        "platform": "ios",
+        "country": "GB",
+        "app_version": "1.2.0",
+        "event_timestamp": "2026-05-20T19:30:00+00:00",
+        "metadata": {
+            "track_id": "track_123",
+            "artist_id": "artist_456",
+            "latency_ms": 120,
+            "is_premium": True
+        }
+    }
+
+    with pytest.raises(ValueError, match='unexpected'):
+        validate(mock_event_bad_event_type, expected)
 
 
 
