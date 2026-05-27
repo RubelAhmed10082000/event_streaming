@@ -117,8 +117,10 @@ def test_generate_bad_event():
 
     is_missing_event_id = "event_id" not in event
     is_missing_user_id = "user_id" not in event
-    has_invalid_timestamp = event.get("event_timestamp") == "not-a-real-timestamp"
-    has_unknown_event_type = event.get("event_type") == "random_fake_event"
+    has_invalid_timestamp = event.get("event_timestamp") == "bad_timestamp"
+    has_unknown_event_type = event.get("event_type") == "bad_event"
+
+    print(event)
 
     assert any([
         is_missing_event_id,

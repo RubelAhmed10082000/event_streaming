@@ -15,6 +15,13 @@ EVENT_TYPES = [
     "error_occurred"
 ]
 
+BAD_EVENT_TYPES = [
+    "missing_event_id",
+    "missing_user_id",
+    "invalid_timestamp",
+    "unknown_event_type"
+]
+
 # Creating a list of potential platforms, app version and countries for metadata
 PLATFORMS = ["ios", "android", "web", "desktop"]
 
@@ -127,12 +134,7 @@ def generate_bad_event():
     Returns:
         dict: modified event dict with bad events
     """
-    bad_event_type = random.choice ([
-        "missing_event_id",
-        "missing_user_id",
-        "invalid_timestamp",
-        "unknown_event_type"
-    ])
+    bad_event_type = random.choice(BAD_EVENT_TYPES) 
 
     # Generates event
     event = generate_event()
@@ -147,7 +149,7 @@ def generate_bad_event():
     
     # Replaces event_timestamp with bad_timestamp
     elif bad_event_type == "invalid_timestamp":
-        event['event_timetamp'] = "bad_timestamp"
+        event['event_timestamp'] = "bad_timestamp"
 
     # Replaces event_type with bad_event
     elif bad_event_type == "unknown_event_type":

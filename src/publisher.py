@@ -14,7 +14,7 @@ import time
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-def publish_message(publisher, topic_path, event):
+def publish_message(publisher: str, topic_path: str, event: dict):
     """
     Publishes message to pubsub topic
 
@@ -24,7 +24,7 @@ def publish_message(publisher, topic_path, event):
         event(dict): Event that will be published 
 
     Returns:
-        message(str): string objet that has been encoded 
+        future.result(str): string object that has been encoded 
     """
     
     # Starting timer to log latency
@@ -65,14 +65,14 @@ def publish_message(publisher, topic_path, event):
             },
         )
 
-def encode_data(data):
+def encode_data(data: dict) -> bytes:
     """
     Encodes data into utf-8
     """
     return json.dumps(data).encode('utf-8')
 
 
-def run_publisher(publisher, topic_path, rate=0):
+def run_publisher(publisher: str, topic_path: str, rate=1):
     """
     Runs publish_message() function indefinetly 
 
@@ -83,6 +83,9 @@ def run_publisher(publisher, topic_path, rate=0):
 
     """
 
+    if rate <= 0:
+        raise ValueError("Rate needs to be 1 or greater")
+    
     # Setting sleep rate
     sleep_time = 1 / rate
 
@@ -99,7 +102,7 @@ def run_publisher(publisher, topic_path, rate=0):
         # Sleeps
         time.sleep(sleep_time)
 
-if __name__ == "__main__":
+def main():
     load_dotenv()
 
     # Create "rate" argument parser
@@ -117,3 +120,7 @@ if __name__ == "__main__":
 
     # Runs publisher
     run_publisher(pubsub_publisher, topic_path, rate=args.rate)
+
+if __name__ == "__main__":
+    main()
+    
