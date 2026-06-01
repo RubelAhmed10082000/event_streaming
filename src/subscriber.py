@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 from src.event_generator import EVENT_TYPES
 from json import JSONDecodeError
+from utils import build_subscription_path
 
 # List of events we expect in the field
 expected = (
@@ -104,13 +105,6 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
     except Exception as e:
         print(f"{message.message_id} experieneced error: {e}")
         message.nack()
-
-def build_subscription_path(subscriber: pubsub_v1.SubscriberClient, project_id: str, 
-                            subscription_id: str) -> str:
-    """
-    Builds Pub/Sub subscription path
-    """
-    return subscriber.subscription_path(project_id, subscription_id)
 
 
 def run_subscriber(subscriber: pubsub_v1.SubscriberClient, 
