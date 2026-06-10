@@ -1,3 +1,5 @@
+
+""""
 from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1
 import os
@@ -23,13 +25,6 @@ expected = (
 
 
 def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
-    """
-    Validates that message decoded correctly
-
-    Args - 
-        decoded_message(dict): Data to be validated
-        expected_list_of_fields(list): List of fields expected in decoded data 
-    """
 
     # Checking if decoded_message is dictionary
     if not isinstance(decoded_message, dict):
@@ -57,24 +52,11 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
         
     
 def decode_data(encoded_message: bytes) -> dict:
-    """
-    Args -
-        encoded_message(bytes): Encoded mesasge sent from publisher
-    Returns -
-        event(dict): decoded message 
-    """
     event = json.loads(encoded_message.data.decode('utf-8'))
     return event
 
 
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-    """
-    Acknowledges that message has been received 
-
-    Args:
-        message(dict): Message being listened to and acknowledged 
-    """
-
     try:
         # Decodes event then validates that decoding has gone as expected
         event = decode_data(message)
@@ -109,13 +91,6 @@ def callback(message: pubsub_v1.subscriber.message.Message) -> None:
 
 def run_subscriber(subscriber: pubsub_v1.SubscriberClient, 
                    subscription_path: str, timeout=10) -> None:
-    """
-    Listens for messages
-
-    Args:
-        subscription_path(str): Path to subscriber 
-        timeout(int): How long subscriber listens to publisher
-    """
 
     # reads message from subscription
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
@@ -144,7 +119,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
+"""
 
 
 
