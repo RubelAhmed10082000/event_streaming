@@ -1,4 +1,4 @@
-from src.subscriber import decode_data, validate, callback, run_subscriber, build_subscription_path, expected
+from legacy.subscriber import decode_data, validate, callback, run_subscriber, build_subscription_path, expected
 from src.publisher import encode_data
 import pytest
 import random
