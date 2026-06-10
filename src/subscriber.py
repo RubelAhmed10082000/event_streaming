@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from src.event_generator import EVENT_TYPES
 from json import JSONDecodeError
-from utils import build_subscription_path
+from src.utils import build_subscription_path
 
 # List of events we expect in the field
 expected = (
@@ -56,7 +56,7 @@ def validate(decoded_message: dict, expected_list_of_fields: list) -> bool:
     return True
         
     
-def decode_data(encoded_message: pubsub_v1.subscriber.message.Message) -> dict:
+def decode_data(encoded_message: bytes) -> dict:
     """
     Args -
         encoded_message(bytes): Encoded mesasge sent from publisher
