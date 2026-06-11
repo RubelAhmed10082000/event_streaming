@@ -25,7 +25,7 @@ EXPECTED_FIELDS = (
     )
 
 class ValidateFn(beam.DoFn):
-    def processs(self, event):
+    def process(self, event):
         try:
             # Checking if decoded_message is dictionary
             if not isinstance(event, dict):
@@ -46,7 +46,7 @@ class ValidateFn(beam.DoFn):
                 raise ValueError(f"Invalid event_timestamp: {event['event_timestamp']}")
         
             # Checking if event type field has correct fields 
-            if event['event_type'] not in EXPECTED_FIELDS:
+            if event['event_type'] not in EVENT_TYPES:
                 raise ValueError(f"{event['event_type']}: unexpected event type value")
             
             # yielding event if all validations are passed
