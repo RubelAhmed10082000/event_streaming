@@ -12,6 +12,7 @@ project_id = os.getenv('PROJECT_ID')
 subscription_id = os.getenv('SUB_ID')
 subscriber = pubsub_v1.SubscriberClient()
 
+# Fields expected for event 
 EXPECTED_FIELDS_FOR_VALIDATION = (
         "event_id",
         "user_id",
@@ -24,6 +25,7 @@ EXPECTED_FIELDS_FOR_VALIDATION = (
         "metadata"
     )
 
+# columns, data types and cardinality for valid event for big query table
 VALID_EVENTS_SCHEMA = {
     "fields": [
         {"name": "event_id", "type": "STRING", "mode": "REQUIRED"},
@@ -39,7 +41,7 @@ VALID_EVENTS_SCHEMA = {
     ]
 }
 
-
+# Schema for dead-letter queue
 BAD_EVENTS_SCHEMA = {
     "fields": [
         {"name": "error", "type": "STRING", "mode": "REQUIRED"},
@@ -50,6 +52,9 @@ BAD_EVENTS_SCHEMA = {
 
 class ValidateFn(beam.DoFn):
     def process(self, event):
+        """
+        Processes beam pipeline
+        """
         try:
             # Checking if decoded_message is dictionary
             if not isinstance(event, dict):
