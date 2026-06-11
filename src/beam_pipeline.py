@@ -103,6 +103,42 @@ def decode_event(message: bytes) -> dict:
     """
     return json.loads(message.decode("utf-8"))
 
+def format_valid_event(event: dict) -> dict:
+    """
+    formats valid event dictionary into rows that will be accepted by BigQuery 
+    Args - 
+        event(dict): event data received from dataflow endpoint
+    Returns - 
+        dict: formatted event data
+    """
+
+    return {
+        "event_id": event["event_id"],
+        "user_id": event["user_id"],
+        "session_id": event["session_id"],
+        "event_type": event["event_type"],
+        "platform": event["platform"],
+        "country": event["country"],
+        "app_version": event["app_version"],
+        "event_timestamp": event["event_timestamp"],
+        "metadata": json.dumps(event["metadata"]),
+        "ingestion_timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+def format_bad_event(bad_event: dict) -> dict:
+    """
+    formats bad event data into rows that will be sent to dead-letter queue 
+    Args - 
+        event(dict): bad event data that did not meet validation criteria
+    Returns - 
+        dict: formatted event data
+    """
+    return {
+        "error": bad_event["error"],
+        # Need to use json.dumps as BigQuery does not accept dictionary as a field value
+        "event": json.dumps(bad_event["event"]),
+        "ingestion_timestamp": datetime.now(timezone.utc).isoformat(),
+    }
 
 def run(argv=None):
     parser = argparse.ArgumentParser()
