@@ -4,7 +4,7 @@ import os
 from google.cloud import pubsub_v1
 from apache_beam.options.pipeline_options import PipelineOptions
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from src.event_generator import EVENT_TYPES
 
 
@@ -12,7 +12,7 @@ project_id = os.getenv('PROJECT_ID')
 subscription_id = os.getenv('SUB_ID')
 subscriber = pubsub_v1.SubscriberClient()
 
-EXPECTED_FIELDS = (
+EXPECTED_FIELDS_FOR_VALIDATION = (
         "event_id",
         "user_id",
         "session_id",
@@ -24,6 +24,30 @@ EXPECTED_FIELDS = (
         "metadata"
     )
 
+VALID_EVENTS_SCHEMA = {
+    "fields": [
+        {"name": "event_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "user_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "session_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "event_type", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "platform", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "country", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "app_version", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "event_timestamp", "type": "TIMESTAMP", "mode": "REQUIRED"},
+        {"name": "metadata", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "ingestion_timestamp", "type": "TIMESTAMP", "mode": "REQUIRED"},
+    ]
+}
+
+
+BAD_EVENTS_SCHEMA = {
+    "fields": [
+        {"name": "error", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "event", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "ingestion_timestamp", "type": "TIMESTAMP", "mode": "REQUIRED"},
+    ]
+}
+
 class ValidateFn(beam.DoFn):
     def process(self, event):
         try:
@@ -32,7 +56,7 @@ class ValidateFn(beam.DoFn):
                 raise TypeError("Decoded data not of type dict")
 
             # Checking for missing fields in decoded_message
-            for ele in EXPECTED_FIELDS:
+            for ele in EXPECTED_FIELDS_FOR_VALIDATION:
                 if ele not in event.keys():
                     raise KeyError(f"{ele} not in decoded message")
         
