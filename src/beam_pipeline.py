@@ -149,6 +149,18 @@ def run(argv=None):
         help="Pub/Sub subscription path",
     )
 
+    parser.add_argument(
+        "--valid_table",
+        required=True,
+        help="BigQuery table for valid events"
+    )
+
+    parser.add_argument(
+        "--invalid-table",
+        required=True,
+        help="BigQuery table for invalid events"
+    )
+
     known_args, pipeline_args = parser.parse_known_args(argv)
 
     pipeline_options = PipelineOptions(
