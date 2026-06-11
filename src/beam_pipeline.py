@@ -2,11 +2,8 @@ import apache_beam as beam
 import json 
 import os
 from google.cloud import pubsub_v1
-from src.utils import build_subscription_path
-from src.subscriber import decode_data
 from apache_beam.options.pipeline_options import PipelineOptions
 import argparse
-from typing import Any
 from datetime import datetime
 from src.event_generator import EVENT_TYPES
 
@@ -27,38 +24,44 @@ EXPECTED_FIELDS = (
         "metadata"
     )
 
-def validate(decoded_message: dict, expected_list_of_fields: tuple) -> bool:
-    """
-    Validates that message decoded correctly
+class ValidateFn(beam.DoFn):
+    def processs(self, event):
+        try:
+            # Checking if decoded_message is dictionary
+            if not isinstance(event, dict):
+                raise TypeError("Decoded data not of type dict")
 
-    Args - 
-        decoded_message(dict): Data to be validated
-        expected_list_of_fields(list): List of fields expected in decoded data 
-    """
-
-    # Checking if decoded_message is dictionary
-    if not isinstance(decoded_message, dict):
-        raise TypeError("Decoded data not of type dict")
-
-    # Checking for missing fields in decoded_message
-    for ele in expected_list_of_fields:
-        if ele not in decoded_message.keys():
-            raise KeyError(f"{ele} not in decoded message")
-    
-    if not isinstance(decoded_message['metadata'],dict):
-        raise TypeError("metadata data not of type dict")
-    
-    # Checking if event_timestamp is still in datetime format
-    try:
-        datetime.fromisoformat(decoded_message["event_timestamp"])
-    except ValueError:
-        raise ValueError(f"Invalid event_timestamp: {decoded_message['event_timestamp']}")
-    
-    # Checking if event type field has correct fields 
-    if decoded_message['event_type'] not in EVENT_TYPES:
-        raise ValueError(f"{decoded_message['event_type']}: unexpected event type value")
-    
-    return decoded_message
+            # Checking for missing fields in decoded_message
+            for ele in EXPECTED_FIELDS:
+                if ele not in event.keys():
+                    raise KeyError(f"{ele} not in decoded message")
+        
+            if not isinstance(event['metadata'],dict):
+                raise TypeError("metadata data not of type dict")
+        
+            # Checking if event_timestamp is still in datetime format
+            try:
+                datetime.fromisoformat(event["event_timestamp"])
+            except ValueError:
+                raise ValueError(f"Invalid event_timestamp: {event['event_timestamp']}")
+        
+            # Checking if event type field has correct fields 
+            if event['event_type'] not in EXPECTED_FIELDS:
+                raise ValueError(f"{event['event_type']}: unexpected event type value")
+            
+            # yielding event if all validations are passed
+            yield event
+        
+        # yielding an exception if otherwise
+        except Exception as error:
+            yield beam.pvalue.TaggedOutput(
+                "bad_events",
+                {
+                    "error": str(error),
+                    "event": event,
+                },
+            )
+        
 
 
 def decode_event(message: bytes) -> dict:
@@ -91,15 +94,24 @@ def run(argv=None):
 
 
     with beam.Pipeline(options=pipeline_options) as pipeline:
-        (
+        validated = (
             pipeline 
             | "Reading from Pub/Sub" >> beam.io.ReadFromPubSub(
                 subscription=known_args.input_subscription
             ) 
             | "Decoding event" >> beam.Map(decode_event)
-            | "Validating event" >> beam.Map(validate, EXPECTED_FIELDS)
-            | "Printing event" >> beam.Map(print)
+            | "Validating event" >> beam.ParDo(ValidateFn()).with_outputs(
+                "bad_events",
+                main="valid_events"
+            )
         )
+        
+        valid_events = validated.valid_events
+        bad_events = validated.bad_events
+
+        valid_events | "Printing valid events" >> beam.Map(print)
+        bad_events | "Printing bad events" >> beam.Map(print)
+        
 
 if __name__ == "__main__":
     run()
