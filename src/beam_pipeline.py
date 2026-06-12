@@ -156,7 +156,7 @@ def run(argv=None):
     )
 
     parser.add_argument(
-        "--invalid-table",
+        "--invalid_table",
         required=True,
         help="BigQuery table for invalid events"
     )
@@ -186,8 +186,29 @@ def run(argv=None):
         valid_events = validated.valid_events
         bad_events = validated.bad_events
 
-        valid_events | "Printing valid events" >> beam.Map(print)
-        bad_events | "Printing bad events" >> beam.Map(print)
+        (
+            valid_events
+            | "Format valid events" >> beam.Map(format_valid_event)
+            | "Write valid events" >> beam.io.WriteToBigQuery(
+                table=known_args.valid_table,
+                schema=VALID_EVENTS_SCHEMA,
+                write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
+                create_disposition=beam.io.BigQueryDisposition.CREATE_NEVER,
+                method=beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
+            )
+        )
+        
+        (
+            bad_events 
+            | "Format bad events" >> beam.Map(format_bad_event)
+            | "Write bad events" >> beam.io.WriteToBigQuery(
+                table=known_args.invalid_table,
+                schema=BAD_EVENTS_SCHEMA,
+                write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
+                create_disposition=beam.io.BigQueryDisposition.CREATE_NEVER,
+                method=beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
+            )
+        )
         
 
 if __name__ == "__main__":
